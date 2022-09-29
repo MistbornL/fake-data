@@ -1,13 +1,73 @@
 import { useRef, useState } from "react";
 import "./App.css";
-
+import us from "./dummyData/us.json";
+import sp from "./dummyData/sp.json";
+import pol from "./dummyData/pol.json";
 function App() {
   const sliderValue = useRef();
   const [value, setValue] = useState(0);
 
+  const [contacts, setContacts] = useState([]);
+  const [region, setRegion] = useState(us);
+
+  let tempContacts = [];
   const handleChange = () => {
     setValue(sliderValue.current.value);
   };
+  function generateFullName(country) {
+    let randName = Math.floor(Math.random() * country.names.length);
+    let randMidName = Math.floor(Math.random() * country.middleNames.length);
+    let randLastName = Math.floor(Math.random() * country.lastNames.length);
+    return [
+      country.names[randName],
+      country.middleNames[randMidName],
+      country.lastNames[randLastName],
+    ].join(" ");
+  }
+
+  function generateAddress(country) {
+    let randCity = Math.floor(Math.random() * country.cities.length);
+    let randStreet = Math.floor(Math.random() * country.streets.length);
+    let randHouse = Math.floor(Math.random() * 1000);
+    let randApartment = Math.floor(Math.random() * 1000);
+    return [
+      `${country.cities[randCity]} city`,
+      `${country.streets[randStreet]} street`,
+      `${randHouse} / ${randApartment}`,
+    ].join(", ");
+  }
+
+  function generatePhone(country) {
+    let phone = "";
+    let randCode = Math.floor(Math.random() * country.phoneCodes.length);
+    phone += country.phoneCodes[randCode];
+    for (let i = 0; i < 7; i++) {
+      const randInt = Math.floor(Math.random() * 10);
+      phone += randInt;
+    }
+    return phone;
+  }
+
+  function generateContacts(country, num) {
+    for (let i = 0; i < num; i++) {
+      let temp = [];
+      temp.push(Math.random() * 9999999999);
+      temp.push(generateFullName(country));
+      if (country === pol) {
+        temp.push("Poland");
+      }
+      if (country === sp) {
+        temp.push("Spain");
+      }
+      if (country === us) {
+        temp.push("USA");
+      }
+      temp.push(generatePhone(country));
+      temp.push(generateAddress(country));
+      tempContacts.push(temp);
+      setContacts(tempContacts);
+    }
+  }
   return (
     <div className="App">
       <header>
@@ -19,11 +79,14 @@ function App() {
             <select
               style={{ borderStyle: "solid" }}
               className="custom-select w-75 h-50"
+              onChange={(e) => {
+                setRegion(e.target.value);
+              }}
             >
-              <option defaultValue={"choose"}>Choose...</option>
-              <option value="en">England</option>
-              <option value="po">Poland</option>
-              <option value="no">Norway</option>
+              <option defaultValue={region}>Choose...</option>
+              <option value="USA">USA</option>
+              <option value="SP">Spain</option>
+              <option value="Pol">Poland</option>
             </select>
           </div>
 
@@ -58,36 +121,38 @@ function App() {
               placeholder="First name"
             />
           </div>
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              generateContacts(region, 10);
+            }}
+          >
+            Generate
+          </button>
         </div>
 
         <table class="table table-dark">
           <thead>
             <tr>
               <th scope="col">#</th>
-              <th scope="col">First</th>
-              <th scope="col">Last</th>
-              <th scope="col">Handle</th>
+              <th scope="col">FullName</th>
+              <th scope="col">Country</th>
+              <th scope="col">Phone</th>
+              <th scope="col">Address</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <th scope="row">1</th>
-              <td>Mark</td>
-              <td>Otto</td>
-              <td>@mdo</td>
-            </tr>
-            <tr>
-              <th scope="row">2</th>
-              <td>Jacob</td>
-              <td>Thornton</td>
-              <td>@fat</td>
-            </tr>
-            <tr>
-              <th scope="row">3</th>
-              <td>Larry</td>
-              <td>the Bird</td>
-              <td>@twitter</td>
-            </tr>
+            {contacts.map((contact) => {
+              return (
+                <tr key={contact[0]}>
+                  <th scope="row">{contact[0]}</th>
+                  <td>{contact[1]}</td>
+                  <td>{contact[2]}</td>
+                  <td>{contact[3]}</td>
+                  <td>{contact[4]}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </main>
