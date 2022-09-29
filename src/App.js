@@ -13,6 +13,7 @@ function App() {
   const [chooseValue, setChooseValue] = useState("Choose...");
   const [contacts, setContacts] = useState([]);
   const [region, setRegion] = useState();
+  var num = 10;
 
   let tempContacts = [];
   const handleChange = () => {
@@ -43,6 +44,19 @@ function App() {
       alert("Choose country");
     }
   }
+
+  function check(e) {
+    if (e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight) {
+      generateContacts(region, num);
+    }
+  }
+
+  const handleScroll = (e) => {
+    check(e);
+
+    num += 4;
+  };
+
   return (
     <div className="App">
       <header>
@@ -105,37 +119,42 @@ function App() {
           <button
             className="btn btn-primary"
             onClick={() => {
-              generateContacts(region, 10);
+              generateContacts(region, num);
             }}
           >
             Generate
           </button>
         </div>
 
-        <table className="table table-dark">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">FullName</th>
-              <th scope="col">Country</th>
-              <th scope="col">Phone</th>
-              <th scope="col">Address</th>
-            </tr>
-          </thead>
-          <tbody>
-            {contacts.map((contact) => {
-              return (
-                <tr key={contact[0]}>
-                  <th scope="row">{contact[0]}</th>
-                  <td>{contact[1]}</td>
-                  <td>{contact[2]}</td>
-                  <td>{contact[3]}</td>
-                  <td>{contact[4]}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div
+          style={{ overflow: "scroll", maxHeight: "455px" }}
+          onScroll={handleScroll}
+        >
+          <table className="table table-dark">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">FullName</th>
+                <th scope="col">Country</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Address</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contacts.map((contact) => {
+                return (
+                  <tr key={contact[0]}>
+                    <th scope="row">{contact[0]}</th>
+                    <td>{contact[1]}</td>
+                    <td>{contact[2]}</td>
+                    <td>{contact[3]}</td>
+                    <td>{contact[4]}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </main>
     </div>
   );
