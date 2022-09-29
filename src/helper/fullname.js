@@ -1,4 +1,4 @@
-function generateFullName(country) {
+export function generateFullName(country) {
   let randName = Math.floor(Math.random() * country.names.length);
   let randMidName = Math.floor(Math.random() * country.middleNames.length);
   let randLastName = Math.floor(Math.random() * country.lastNames.length);

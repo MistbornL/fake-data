@@ -3,69 +3,44 @@ import "./App.css";
 import us from "./dummyData/us.json";
 import sp from "./dummyData/sp.json";
 import pol from "./dummyData/pol.json";
+import { generatePhone } from "./helper/phone";
+import { generateAddress } from "./helper/address";
+import { generateFullName } from "./helper/fullname";
+import { CSVLink, CSVDownload } from "react-csv";
 function App() {
   const sliderValue = useRef();
   const [value, setValue] = useState(0);
-
+  const [chooseValue, setChooseValue] = useState("Choose...");
   const [contacts, setContacts] = useState([]);
-  const [region, setRegion] = useState(us);
+  const [region, setRegion] = useState();
 
   let tempContacts = [];
   const handleChange = () => {
     setValue(sliderValue.current.value);
   };
-  function generateFullName(country) {
-    let randName = Math.floor(Math.random() * country.names.length);
-    let randMidName = Math.floor(Math.random() * country.middleNames.length);
-    let randLastName = Math.floor(Math.random() * country.lastNames.length);
-    return [
-      country.names[randName],
-      country.middleNames[randMidName],
-      country.lastNames[randLastName],
-    ].join(" ");
-  }
-
-  function generateAddress(country) {
-    let randCity = Math.floor(Math.random() * country.cities.length);
-    let randStreet = Math.floor(Math.random() * country.streets.length);
-    let randHouse = Math.floor(Math.random() * 1000);
-    let randApartment = Math.floor(Math.random() * 1000);
-    return [
-      `${country.cities[randCity]} city`,
-      `${country.streets[randStreet]} street`,
-      `${randHouse} / ${randApartment}`,
-    ].join(", ");
-  }
-
-  function generatePhone(country) {
-    let phone = "";
-    let randCode = Math.floor(Math.random() * country.phoneCodes.length);
-    phone += country.phoneCodes[randCode];
-    for (let i = 0; i < 7; i++) {
-      const randInt = Math.floor(Math.random() * 10);
-      phone += randInt;
-    }
-    return phone;
-  }
 
   function generateContacts(country, num) {
-    for (let i = 0; i < num; i++) {
-      let temp = [];
-      temp.push(Math.random() * 9999999999);
-      temp.push(generateFullName(country));
-      if (country === pol) {
-        temp.push("Poland");
+    if (country) {
+      for (let i = 0; i < num; i++) {
+        let temp = [];
+        temp.push(Math.random() * 9999999999);
+        temp.push(generateFullName(country));
+        if (chooseValue === "POL") {
+          temp.push("Poland");
+        }
+        if (chooseValue === "SP") {
+          temp.push("Spain");
+        }
+        if (chooseValue === "USA") {
+          temp.push("USA");
+        }
+        temp.push(generatePhone(country));
+        temp.push(generateAddress(country));
+        tempContacts.push(temp);
+        setContacts(tempContacts);
       }
-      if (country === sp) {
-        temp.push("Spain");
-      }
-      if (country === us) {
-        temp.push("USA");
-      }
-      temp.push(generatePhone(country));
-      temp.push(generateAddress(country));
-      tempContacts.push(temp);
-      setContacts(tempContacts);
+    } else {
+      alert("Choose country");
     }
   }
   return (
@@ -80,13 +55,20 @@ function App() {
               style={{ borderStyle: "solid" }}
               className="custom-select w-75 h-50"
               onChange={(e) => {
-                setRegion(e.target.value);
+                setChooseValue(e.target.value);
+                if (e.target.value === "USA") {
+                  setRegion(us);
+                } else if (e.target.value === "SP") {
+                  setRegion(sp);
+                } else if (e.target.value === "POL") {
+                  setRegion(pol);
+                }
               }}
             >
-              <option defaultValue={region}>Choose...</option>
+              <option defaultValue={chooseValue}>Choose...</option>
               <option value="USA">USA</option>
               <option value="SP">Spain</option>
-              <option value="Pol">Poland</option>
+              <option value="POL">Poland</option>
             </select>
           </div>
 
@@ -102,24 +84,23 @@ function App() {
                 className="slider"
                 id="myRange"
               />
-              <p>{value}</p>
             </div>
           </div>
 
-          <div className="form-group w-25">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="First name"
-            />
+          <div className="form-group w-25 d-flex align-items-center justify-content-center ">
+            <h1>{value}</h1>
           </div>
 
           <div className="form-group w-25">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="First name"
-            />
+            <button className="btn btn-primary">
+              <CSVLink
+                style={{ textDecoration: "none", color: "white" }}
+                data={contacts}
+                target="_blank"
+              >
+                export csv
+              </CSVLink>
+            </button>
           </div>
           <button
             className="btn btn-primary"
@@ -131,7 +112,7 @@ function App() {
           </button>
         </div>
 
-        <table class="table table-dark">
+        <table className="table table-dark">
           <thead>
             <tr>
               <th scope="col">#</th>
